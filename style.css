@@ -1,0 +1,1606 @@
+@charset "utf-8";
+
+body {
+    font-family: "Noto Sans JP", sans-serif;
+    color: #000;
+}
+
+img {
+    vertical-align: bottom;
+}
+
+/* ----------------------------------
+ヘッダー 
+---------------------------------- */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    /* 少し透けさせる */
+    background-color: rgba(255, 255, 255, 0.95);
+    /* 背景をぼかす */
+    backdrop-filter: blur(8px);
+    /* 下側に軽い影 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* カードより上に表示 */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 94vw;
+    height: 100%;
+}
+
+/* 左側（ターン） */
+.turn-container {
+    text-align: center;
+    z-index: 10;
+}
+
+.turn-btn {
+    width: 152px;
+    width: 100px;
+    /* padding: 10px 20px; */
+    /* padding: 10px 0; */
+    padding: 10px 0 10px 5px;
+    font-weight: bold;
+    /* ポケモンイエロー */
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 200px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #d4aa00;
+    transition: all 0.2s;
+    font-size: 1em;
+    color: #000;
+}
+
+@media (max-width: 510px) {
+    .turn-btn {
+        font-size: 0.9em;
+        width: 88px;
+        padding: 10px 0 10px 3px;
+    }
+}
+
+.turn-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #d4aa00;
+}
+
+.card.is-turned .img-front {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1.2);
+}
+
+.card.is-turned .img-back {
+    opacity: 0;
+    transform: rotateY(-180deg);
+}
+
+/* タイトル */
+.header-title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+
+.header-title {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+@media (max-width: 510px) {
+    .header-title {
+        font-size: 1.1em;
+    }
+}
+
+.header-pokemon-count {
+    font-size: 0.9em;
+}
+
+/* 右側（ソート・フィルター） */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+/* ソート */
+.custom-select {
+    position: relative;
+    width: auto;
+    user-select: none;
+}
+
+.custom-select__trigger {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.custom-select__dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 124px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    list-style: none;
+    padding: 6px 0;
+    margin: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.custom-select.is-open .custom-select__dropdown {
+    display: block;
+}
+
+.custom-select__option {
+    padding: 10px 0 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.custom-select__option:hover {
+    background-color: #ebebeb;
+}
+
+.custom-select__option.is-selected {
+    font-weight: bold;
+    color: #333;
+}
+
+/* フィルター */
+.filter-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    transition: background-color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+.filter-btn:hover {
+    background-color: #ebebeb;
+}
+
+.filter-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: #ff4d4d;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 0 0 2px 1px;
+}
+
+/* ----------------------------------
+main
+---------------------------------- */
+.main {
+    margin-top: 110px;
+}
+
+@media (max-width: 510px) {
+    .main {
+        margin-top: 100px;
+    }
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    width: 94vw;
+    margin: 0 auto;
+    padding-bottom: 40px;
+    visibility: hidden;
+}
+
+@media (max-width: 510px) {
+    .container {
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        gap: 12px;
+    }
+}
+
+.container.is-ready {
+    visibility: visible;
+}
+
+.card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #fff;
+    cursor: pointer;
+    /* --- アニメーションと文字のにじみ対策 --- */
+    transition: translate 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    will-change: translate;
+    /* 光の筋の基準点にする */
+    position: relative;
+    /* カードからはみ出た光を隠す */
+    overflow: hidden;
+}
+
+@media (max-width: 510px) {
+    .card {
+        padding: 8px 8px;
+    }
+}
+
+@keyframes shine {
+    0% {
+        top: -100%;
+        left: -100%;
+    }
+
+    100% {
+        left: 125%;
+        top: 150%;
+    }
+}
+
+/* 光の筋（初期状態は左側に隠れている） */
+.card::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 75%;
+    height: 150%;
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(248, 248, 248, 0.28) 100%);
+    transform: skewX(-40deg);
+    pointer-events: none;
+}
+
+/* ホバーした瞬間だけ光を走らせる */
+.card:hover::after {
+    animation: shine 0.75s ease-out forwards;
+}
+
+/* ホバー時の浮き上がり演出 */
+.card:hover {
+    translate: 6px -6px;
+    box-shadow: -6px 12px 20px rgba(0, 0, 0, 0.07);
+    border-color: #bbb;
+}
+
+.id {
+    font-size: 0.9em;
+}
+
+/* 画像コンテナの基本設定 */
+.img-container {
+    position: relative;
+    width: 96px;
+    /* PokeAPIの画像サイズに合わせる */
+    height: 96px;
+    margin: 0 auto;
+    perspective: 500px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2枚の画像を同じ位置に重ねる */
+.img-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* ふわっと切り替える */
+    transition: opacity 0.3s, transform 0.5s;
+}
+
+/* 最初は前向きを隠しておく */
+.img-front {
+    opacity: 0;
+    /* 回転の演出 */
+    transform: rotateY(180deg);
+}
+
+/* 最初は後ろ向きを表示 */
+.img-back {
+    opacity: 1;
+}
+
+/* カードにホバーした時の挙動 */
+.card:hover .img-front,
+.card.is-turned:hover .img-back {
+    opacity: 1;
+    /* 前を向く */
+    transform: rotateY(0deg) scale(1.2);
+}
+
+.card:hover .img-back,
+.card.is-turned:hover .img-front {
+    opacity: 0;
+    /* 後ろが消える */
+    transform: rotateY(-180deg);
+}
+
+.name {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 0 0 5px 0;
+}
+
+@media (max-width: 510px) {
+    .name {
+        margin: -5px 0 0 0;
+    }
+}
+
+.genus {
+    font-size: 0.9em;
+    margin: 0 0 10px 0;
+}
+
+@media (max-width: 510px) {
+    .genus {
+        margin: 0 0 6px 0;
+    }
+}
+
+.type-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+@media (max-width: 510px) {
+    .type-container {
+        gap: 5px;
+    }
+}
+
+.type {
+    display: inline-block;
+    padding: 0px 10px 2px;
+    border-radius: 50px;
+    font-size: 0.8em;
+    color: white;
+    font-weight: bold;
+}
+
+@media (max-width: 510px) {
+    .type {
+        padding: 0px 8px 2px;
+    }
+}
+
+.ability {
+    margin-top: 13px;
+    font-size: 0.9em;
+    /* border-top: 1px solid #eee; */
+    border-top: 1px solid #f0f0f0;
+    padding-top: 10px;
+}
+
+@media (max-width: 510px) {
+    .ability {
+        margin-top: 8px;
+        padding-top: 4px;
+    }
+}
+
+/* ----------------------------------
+モーダル（モンスター詳細）
+---------------------------------- */
+/* モーダルの背景 */
+.modal {
+    display: none;
+    position: fixed;
+    /* カードより上に表示 */
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    /* 背景をぼかす */
+    backdrop-filter: blur(4px);
+}
+
+/* モーダルの白枠 */
+.modal-content {
+    background-color: #fff;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 22px 25px 22px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    height: fit-content;
+    max-height: 94vh;
+    animation: slideIn 0.3s ease-out;
+    /* 中身がはみ出たら縦スクロールを出す */
+    overflow-y: auto;
+    /* Firefoxでスクロールバーを隠す */
+    scrollbar-width: none;
+}
+
+/* ChromeやSafariでスクロールバーを隠す */
+.modal-content::-webkit-scrollbar {
+    display: none;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 閉じるボタン */
+.close-button {
+    color: #aaa;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: #555;
+}
+
+.modal-body {
+    text-align: center;
+}
+
+.modal-id {
+    font-size: 1em;
+}
+
+.modal-img-container {
+    height: 120px;
+    margin: 14px auto 12px;
+    text-align: center;
+}
+
+@media (max-width: 510px) {
+    .modal-img-container {
+        margin: 10px auto 7px;
+    }
+}
+
+/* モーダル内の画像に浮遊感を与える */
+#modal-img {
+    transition: transform 0.3s ease;
+    margin: 0 auto;
+}
+
+#modal-img:hover {
+    /* モーダル内の画像もホバーで少し大きく */
+    transform: scale(1.1);
+}
+
+.modal-name {
+    margin-bottom: 6px;
+}
+
+.modal-genus {
+    margin-bottom: 13px;
+    font-size: 1em;
+}
+
+@media (max-width: 510px) {
+    .modal-genus {
+        margin-bottom: 8px;
+    }
+}
+
+.modal-size-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px;
+    margin: 14px 0 12px;
+}
+
+@media (max-width: 510px) {
+    .modal-size-container {
+        margin: 10px 0 8px;
+    }
+}
+
+.modal-size-line {
+    width: 1px;
+    height: 34px;
+    background-color: #f0f0f0;
+}
+
+.modal-size-head {
+    color: #888;
+    font-size: 0.85em;
+    margin-bottom: 3px;
+    letter-spacing: 0.05em;
+}
+
+.modal-size-content {
+    font-size: 0.9em;
+    font-size: 1em;
+}
+
+.modal-description {
+    text-align: left;
+    font-size: 1em;
+    line-height: 1.6;
+    padding: 8px 16px;
+    background-color: #fffcf0;
+    border-radius: 10px;
+}
+
+/* ステータスバー全体のコンテナ */
+.stats-container {
+    margin: 16px auto 14px;
+}
+
+@media (max-width: 510px) {
+    .stats-container {
+        margin: 12px auto 11px;
+    }
+}
+
+.stats-box {
+    margin-bottom: 8px;
+    display: flex;
+    /* justify-content:space-between; */
+    align-items: center;
+    font-size: 0.9em;
+}
+
+@media (max-width: 510px) {
+    .stats-box {
+        margin-bottom: 4px;
+    }
+}
+
+.stats-label {
+    flex-basis: 66px;
+    text-align: left;
+}
+
+.stas-bar {
+    flex: 1;
+    background: #eee;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stas-bar-inner {
+    width: 0%;
+    height: 100%;
+    background-color: #fc0;
+    border-radius: 4px;
+    /* JSでの変化を滑らかにする設定 */
+    transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.stas-num {
+    flex-basis: 36px;
+    font-weight: bold;
+    text-align: right;
+}
+
+/* 名前編集 */
+.modal-name-container {
+    margin: 0 0 5px 0;
+    display: grid;
+    gap: 15px;
+    /* 3列にして中央をautoに */
+    grid-template-columns: 1fr auto 1fr;
+    /* grid-template-columns: 1fr auto auto; */
+    align-items: baseline;
+    width: 100%;
+}
+
+@media (max-width: 510px) {
+    .modal-name-container {
+        margin: 0 0 0 0;
+    }
+}
+
+.modal-name-inner {
+    grid-column: 2;
+    min-width: 0;
+    /* ★ 追加：グリッド内での膨張を防ぐ */
+}
+
+.modal-name {
+    /* 既存のmarginをリセット */
+    margin: 0;
+}
+
+.modal-name-edit {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #ffcc00;
+    border-radius: 8px;
+    width: 60%;
+    display: none;
+    width: 100%;
+    max-width: 160px;
+    box-sizing: border-box;
+    outline: none;
+    padding: 2px 10px;
+    background-color: #fffdf0;
+    color: #333;
+}
+
+@keyframes pulse-border {
+    0% {
+        border-color: #ffcc00;
+    }
+
+    50% {
+        border-color: #ffea00;
+        box-shadow: 0 0 8px #ffea00;
+    }
+
+    100% {
+        border-color: #ffcc00;
+    }
+}
+
+.edit-name-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    padding: 0 4px;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+    grid-column: 3;
+    justify-self: start;
+
+    /* 既存のスタイルに追加 */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.edit-name-btn:hover {
+    color: #333;
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+    transition: transform 0.2s;
+}
+
+#save-name-btn {
+    width: auto;
+    height: auto;
+    /* font-size: 0.85em; */
+    font-size: 0.9em;
+    /* color: #ffcc00; */
+    color: #fff;
+    /* border: 1px solid #ffcc00; */
+    background-color: #ffcc00;
+    border-radius: 50px;
+    padding: 4px 12px 6px;
+    white-space: nowrap;
+    translate: 0 -4px;
+}
+
+#save-name-btn:hover {
+    transform: none;
+}
+
+.modal-delete-container {
+    /* margin-top: 20px; */
+    text-align: center;
+}
+
+.modal-delete-btn {
+    background-color: #fff;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    padding: 8px 16px;
+    border-radius: 200px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.modal-delete-btn:hover {
+    background-color: #ff4d4d;
+    color: #fff;
+}
+
+/* かえす確認モーダル */
+.confirm-modal {
+    z-index: 3000;
+}
+
+.confirm-content {
+    max-width: 320px;
+    margin: auto
+}
+
+.confirm-text-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+
+.confirm-text1 {
+    font-size: 1em;
+}
+
+.confirm-text2 {
+    margin: 4px 0 20px 0;
+    font-size: 1em;
+}
+
+.confirm-text-caution {
+    display: inline-block;
+    margin-top: 2px;
+}
+
+.confirm-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+/* キャンセルボタン */
+.btn-cancel {
+    background-color: #eee;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    flex: 1;
+    font-weight: bold;
+}
+
+/* 実行ボタン */
+.btn-delete {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    flex: 1;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #d43f3f;
+}
+
+.btn-delete:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #d43f3f;
+}
+
+/* 自然にかえす：お別れアニメーション */
+@keyframes releaseToNature {
+    0% {
+        transform: scale(1) rotateY(0deg);
+        opacity: 1;
+        filter: brightness(1) blur(0px);
+    }
+
+    30% {
+        /* くるっと後ろを向く（背中を見せる） */
+        transform: scale(0.9) rotateY(180deg);
+        opacity: 1;
+        filter: brightness(1.2) blur(0px);
+    }
+
+    100% {
+        /* 上空へ遠ざかりながら、光に溶けて消える */
+        transform: scale(0) rotateY(180deg) translateY(-200px);
+        opacity: 0;
+        filter: brightness(3) blur(2px);
+    }
+}
+
+/* JavaScriptから付与するクラス */
+.is-releasing {
+    animation: releaseToNature 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    /* アニメーション中の誤操作防止 */
+    pointer-events: none;
+}
+
+.confirm-modal {
+    z-index: 3000;
+    /* 背景を少し暗くして詳細モーダルと差別化 */
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+/* モーダルが閉じるときのフェードアウト */
+.modal-fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    /* フェードアウト中のクリック防止 */
+    pointer-events: none;
+}
+
+
+/* ----------------------------------
+モンスターボール
+---------------------------------- */
+.monsterball-float {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* ゆらゆらアニメーション */
+    animation: float-ball 5s ease-in-out infinite;
+}
+
+@media (max-width: 510px) {
+    .monsterball-float {
+        right: 3vw;
+    }
+}
+
+/* ボールの本体（上下の色分け） */
+.monsterball-base {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* 赤・黒（境界）・白のグラデーションで色分け */
+    background: linear-gradient(to bottom,
+            #ff0000 0%, #ff0000 47%,
+            #333 47%, #333 53%,
+            #ffffff 53%, #ffffff 100%);
+    border-radius: 50%;
+    border: 3px solid #333;
+    box-sizing: border-box;
+    overflow: hidden;
+    box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.1);
+    /* 内側の影で立体感を出す */
+    transition: transform 0.2s ease;
+}
+
+/* ホバーした時に少し大きく */
+.monsterball-base:hover {
+    transform: scale(1.15);
+}
+
+/* 中央のボタン部分 */
+.monsterball-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.monsterball-center-button {
+    width: 12px;
+    height: 12px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 地面の影（浮いている感じを強調） */
+.monsterball-shadow {
+    position: absolute;
+    bottom: -15px;
+    left: 10%;
+    width: 80%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    filter: blur(2px);
+    z-index: -1;
+    /* ボールの上下に合わせて影も伸び縮みさせる */
+    animation: shadow-size 5s ease-in-out infinite;
+    transition: bottom 0.2s ease;
+}
+
+/* ホバーした時に少し大きく */
+.monsterball-float:hover .monsterball-shadow {
+    bottom: -18px;
+}
+
+/* ボールがゆらゆら浮くアニメーション */
+@keyframes float-ball {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* 影の伸び縮み */
+@keyframes shadow-size {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(0.7);
+        opacity: 0.5;
+    }
+}
+
+/* クラスがついたらアニメーション開始 */
+#monsterball-float.is-throwing {
+    animation: throw-x-z 1.0s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+/* 子要素：縦の放物線を担当 */
+#monsterball-float.is-throwing .monsterball-base {
+    /* Y軸専用のイージング：放物線の頂点付近でふんわりさせる */
+    animation: throw-y-rotate 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+    will-change: transform;
+}
+
+/* X軸（横）とスケール（奥へ）の動き */
+@keyframes throw-x-z {
+    0% {
+        /* translate3d を使うことでGPUレンダリングを強制 */
+        transform: translate3d(0, 0, 0) scale(1.15);
+        opacity: 1;
+    }
+
+    100% {
+        /* 右上奥（カード付近）へ：移動量を大きくするとスピード感が出ます */
+        transform: translate3d(-20vw, -45vh, 0) scale(0.4);
+        opacity: 0;
+    }
+}
+
+/* Y軸（縦）の動き：ここを分離することで綺麗な弧を描く */
+@keyframes throw-y-rotate {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+
+    40% {
+        /* 山なりのピーク。回転もここで半分くらいまで回す */
+        transform: translate3d(0, -200px, 0) rotate(-288deg);
+    }
+
+    100% {
+        /* 地面（高さ0）に戻りつつ、さらに回転 */
+        /* transform: translate3d(0, 0, 0) rotate(1080deg); */
+        transform: translate3d(0, 0, 0) rotate(-720deg);
+    }
+}
+
+/* ボールが投げられたら影をスッと消す */
+.monsterball-float.is-throwing .monsterball-shadow {
+    opacity: 0 !important;
+    animation: none !important;
+    transition: opacity .2s ease;
+}
+
+/* 捕獲演出オーバーレイ */
+.catch-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+}
+
+.catch-overlay.is-active {
+    background-color: rgba(0, 0, 0, 0.82);
+}
+
+.catch-overlay.is-leaving {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* 円のリング */
+.catch-ring {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0);
+    animation: catch-ring-expand 0.55s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+    animation-delay: 0ms;
+}
+
+.catch-ring--fill {
+    background: rgba(255, 255, 255, 0.92);
+    border: none;
+}
+
+.catch-ring--blue {
+    background: transparent;
+    border: 6px solid rgba(100, 180, 255, 0.9);
+    animation-duration: 0.6s;
+}
+
+@keyframes catch-ring-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    55% {
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* 飛び散る玉 */
+.catch-orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    animation: catch-orb-fly var(--dur) cubic-bezier(0.15, 0.8, 0.35, 1) forwards;
+    animation-delay: var(--delay);
+}
+
+@keyframes catch-orb-fly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+
+    75% {
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0.15);
+        opacity: 0;
+    }
+}
+
+/* ポケモン画像 */
+.catch-pokemon-img {
+    width: 0;
+    opacity: 0;
+    transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0s,
+        opacity 0.4s ease 0s;
+    filter: drop-shadow(0 8px 24px rgba(255, 255, 255, 0.2));
+    z-index: 2;
+}
+
+.catch-overlay.is-pokemon-visible .catch-pokemon-img {
+    width: 180px;
+    opacity: 1;
+}
+
+/* 名前テキスト */
+.catch-label {
+    color: #fff;
+    font-size: 1.4em;
+    font-weight: bold;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
+    z-index: 2;
+}
+
+.catch-overlay.is-pokemon-visible .catch-label {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ボール */
+.catch-ball-wrap {
+    position: fixed;
+    width: 72px;
+    height: 72px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.catch-ball {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom,
+            #ff0000 0%, #ff0000 44%,
+            #333 44%, #333 56%,
+            /* #222 → #333 */
+            #ffffff 56%, #ffffff 100%);
+    border-radius: 50%;
+    border: 3px solid #333;
+    /* #222 → #333 */
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.1);
+    /* 立体感を追加 */
+}
+
+.catch-ball-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44%;
+    background: #ff0000;
+    border-radius: 36px 36px 0 0;
+    transform-origin: center bottom;
+}
+
+.catch-ball-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.catch-ball-btn {
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    /* 投げる前と同じ */
+}
+
+/* フラッシュ */
+.catch-flash {
+    position: fixed;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 0.15s ease-out;
+}
+
+.catch-flash--go {
+    animation: catch-flash-anim 0.3s ease-out forwards;
+}
+
+@keyframes catch-flash-anim {
+    0% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ----------------------------------
+トースト
+---------------------------------- */
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+.toast {
+    background-color: rgba(51, 51, 51, 0.9);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 50px;
+    margin-top: 10px;
+    font-size: 0.9em;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* ふわっと表示・非表示のアニメーション */
+    animation: toast-in-out 3s forwards;
+    white-space: nowrap;
+}
+
+@keyframes toast-in-out {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    85% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* ----------------------------------
+モーダル（フィルター）
+---------------------------------- */
+.filter-modal {
+    z-index: 2500;
+}
+
+.filter-modal-content {
+    max-width: 420px;
+    height: 88vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.filter-modal-header {
+    padding: 22px 0 17px;
+}
+
+.filter-modal-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+}
+
+.filter-modal-body {
+    overflow-y: auto;
+    padding: 0 25px;
+    flex: 1;
+    scrollbar-width: none;
+}
+
+.filter-modal-body::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-reset-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 0.9em;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.filter-reset-btn:hover {
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+/* フリーワード検索 */
+.filter-freeword-wrap {
+    padding: 14px 0 4px;
+}
+
+.filter-freeword-input-wrap {
+    position: relative;
+}
+
+.filter-freeword-input-wrap .filter-freeword-input {
+    padding-right: 40px;
+    /* ✕ボタン分の余白 */
+}
+
+.filter-freeword-input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1.5px solid #ddd;
+    border-radius: 50px;
+    font-size: 1em;
+    font-family: "Noto Sans JP", sans-serif;
+    outline: none;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.filter-freeword-input:focus {
+    border-color: #ffcc00;
+    background-color: #fffdf0;
+}
+
+.filter-freeword-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    /* background: #ddd; */
+    background-color: #eee;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: background-color 0.15s;
+}
+
+.filter-freeword-clear:hover {
+    background: #ccc;
+}
+
+/* アコーディオン：セクションタイトル */
+.filter-section-title {
+    font-size: 0.9em;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 0 8px;
+    margin-bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+}
+
+.filter-freeword-wrap .filter-section-title {
+    cursor: default;
+    border-bottom: none;
+}
+
+/* 矢印アイコン */
+.filter-section-arrow {
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.filter-section-title.is-open .filter-section-arrow {
+    transform: rotate(180deg);
+}
+
+/* チップ群を包むラッパー（高さで開閉） */
+.filter-chips-wrap {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+}
+
+.filter-chips-wrap.is-open {
+    max-height: 3000px;
+}
+
+/* チップ自体 */
+.filter-chips {
+    padding: 10px 0 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-row-gap: 12px;
+    grid-column-gap: 12px;
+    justify-content: center;
+}
+
+#filter-type.filter-chips {
+    grid-template-columns: repeat(auto-fit, 5em);
+    grid-row-gap: 12px;
+    grid-column-gap: 14px;
+}
+
+.filter-chip {
+    color: #000;
+    padding: 5px 0px 6px;
+    text-align: center;
+    border-radius: 50px;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.filter-chip:hover {
+    border-color: #bbb;
+}
+
+.filter-chip.is-selected {
+    background-color: #ffcc00;
+    border-color: #d4aa00;
+    color: #333;
+    font-weight: bold;
+}
+
+/* タイプチップ：色付き */
+.filter-chip--type {
+    color: #fff;
+    font-weight: bold;
+    border-width: 0;
+    opacity: 1;
+    border-radius: 50px;
+    padding: 3px 10px 5px;
+    font-size: 0.8em;
+    background-color: unset;
+    min-width: 5em;
+    text-align: center;
+    box-sizing: content-box;
+}
+
+.filter-chip--type:hover {
+    opacity: 0.85;
+    border-color: inherit;
+}
+
+.filter-chip--type.is-selected {
+    opacity: 1;
+    /* PHPのinlineスタイルを維持 */
+    box-shadow: 0 0 0 2px #fff, 0 0 0 5px #fc0;
+    color: #fff;
+}
+
+.filter-footer {
+    margin-top: 0;
+    padding: 16px 25px 20px;
+    border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+}
+
+.filter-reset-btn {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    color: #888;
+    font-size: 1em;
+    font-weight: bold;
+    font-family: "Noto Sans JP", sans-serif;
+    cursor: pointer;
+    padding: 12px 20px;
+    border-radius: 50px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.filter-reset-btn:hover {
+    border-color: #bbb;
+    color: #333;
+}
+
+.filter-apply-btn {
+    flex: 1;
+    position: relative;
+}
+
+.filter-apply-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 50px;
+    background-color: #ffcc00;
+    color: #333;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #d4aa00;
+    transition: all 0.2s;
+    font-family: "Noto Sans JP", sans-serif;
+}
+
+.filter-apply-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #d4aa00;
+}
+
+.apply-badge {
+    position: absolute;
+    top: -8px;
+    right: 0;
+    background-color: #ff4d4d;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 0 0 2px 1px;
+}
+
+/* フィルターで非表示になったカード */
+.card.is-filtered-out {
+    display: none;
+}
